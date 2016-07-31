@@ -1,6 +1,6 @@
 # jQuery UI Contenteditable
 
-Lightweight jQuery UI plugin providing more convinient API to use "contenteditable" feature.
+Lightweight jQuery UI plugin providing more convenient API to use "contenteditable" feature.
 
 It allows you to make contents of HTML element easily editable using a single click.
 

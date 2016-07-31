@@ -1,5 +1,11 @@
-/**
- * Created by Agrinko on 23-Jul-16.
+/*!
+ * jQuery UI Contenteditable 1.0.0
+ * Lightweight jQuery UI plugin providing more convenient API to use "contenteditable" feature.
+ * 
+ * Copyright: Alexey Grinko, 2016
+ * Git repository: https://github.com/agrinko/jquery-contenteditable.git
+ * 
+ * @license MIT - https://opensource.org/licenses/MIT
  */
 (($) => {
     $.widget("ui.editable", {

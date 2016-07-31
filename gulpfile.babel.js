@@ -11,7 +11,7 @@ gulp.task("build", ["babel"], () => {
             "!src/*.min.js"
         ])
         .pipe(uglify({
-            preserveComments: "licence"
+            preserveComments: "license"
         }))
         .pipe(rename({
             suffix: ".min"

@@ -1,7 +1,7 @@
 {
   "name": "jquery-contenteditable",
   "version": "1.0.0",
-  "description": "Lightweight jQuery UI plugin providing more convinient API to use \"contenteditable\" feature",
+  "description": "Lightweight jQuery UI plugin providing more convenient API to use \"contenteditable\" feature",
   "main": "src/jquery-contenteditable.js",
   "scripts": {
     "build": "gulp build"
