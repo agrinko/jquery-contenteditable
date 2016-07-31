@@ -13,6 +13,7 @@ It has its own pros and cons, however:
   - :+1: Automatic HTML escaping which "contenteditable" provides out of box (which might be browser-specific, though)
   - :-1: Lower browsers compatibility (read [more](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable))
 - Customizable input validation via callbacks
+- No conflicts with jQuery UI Draggable plugin (distinguishes between single click and dragging intent)
 - Source code in 3 samples: *ES 2015*, *ES 5.1* and *ES 5.1 minified*
 - jQuery UI widget-styled. It means **dependency on jQuery UI** widget factory, which is most likely a negative point.
 

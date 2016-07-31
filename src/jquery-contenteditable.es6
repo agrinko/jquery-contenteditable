@@ -12,26 +12,28 @@
         version: "1.0.0",
         widgetEventPrefix: "edit",
         options: {
-            content: "self",
-            timeout: false,
-            multiline: false,
-            exitKeys: ["escape"],
-            className: "ui-editable",
-            editingClass: "ui-editable-editing",
-            invalidClass: "ui-editable-invalid",
-            autoselect: false,
+            content: "self",                    //a selector/jQuery object/HTML element that "contenteditable" attr
+                                                //should be applied to; default "self" refers to the element itself
+            timeout: false,                     //a delay in ms before firing each "apply" callback; false for no delay
+            multiline: false,                   //if false (default) - prevent "enter" key from adding a line break
+            exitKeys: ["escape"],               //keys to finish editing (escape, enter, tab, end, and some other)
+            className: "ui-editable",           //class name to be added to editable element permanently
+            editingClass: "ui-editable-editing",//class name to be added in editing mode
+            invalidClass: "ui-editable-invalid",//class name to be added when validation is not passed
+            autoselect: false,                  //whether to automatically select all content when starting editing
+            preventUndo: false,                 //whether to prevent default Ctrl+Z/Ctrl+Shift+Z/Ctrl+Y behaviour
 
             //callbacks
-            start: null,
-            end: null,
-            input: null,
-            apply: null,
-            validate: null
+            start: null,                        //editing was started
+            end: null,                          //editing was finished
+            input: null,                        //fired on each "keydown" event; return false to prevent default action
+            apply: null,                        //fired when validation is passed and timeout delay has gone
+            validate: null                      //return false for incorrect value; content value is the second argument
         },
 
         _create() {
-            this.ready = false;
-            this.mode = "normal";
+            this.ready = false;     //marks if element is ready for editable mode after mousedown event
+            this.mode = "normal";   //current state: "normal" or "edit"
 
             this.element.addClass(this.options.className);
             this.content = (this.options.content == "self" || !this.options.content) ?
@@ -59,7 +61,7 @@
         },
 
         _prepare(e) {
-            if (e.which === 1)
+            if (e.which === 1) //filter left mouse button
                 this.ready = true;
         },
 
@@ -84,7 +86,7 @@
             this.content.focus();
 
             this.isValid = true;
-            this.validContent = this.content.text();
+            this.validContent = this.content.text(); //remember current content as valid
 
             if (this.options.autoselect)
                 this.select();
@@ -94,12 +96,12 @@
             if (this.mode === "normal") return;
 
             if (!this.isValid)
-                this.content.text(this.validContent);
+                this.content.text(this.validContent); //reset to last remembered valid content
 
             this._mode("normal");
 
             if (!e || e.type != "blur")
-                this.content.blur();
+                this.content.blur(); //automatically switch focus when finished by pressing "exitKeys"
 
             if (this.options.end)
                 this.options.end.call(this.element);
@@ -133,7 +135,7 @@
                 case "edit":
                     this.element.addClass(this.options.editingClass);
                     if (this.element.data("ui-draggable"))
-                        this.element.draggable("disable");
+                        this.element.draggable("disable"); //disable draggable plugin when editing content
 
                     this.content.prop("contenteditable", true);
 
@@ -173,13 +175,13 @@
         _apply(e) {
             if (!this.validate()) return;
 
-            this.validContent = this.content.text();
+            this.validContent = this.content.text(); //remember new content as valid
 
             this.options.apply(e, {
                 content: this.validContent
             });
         },
-
+        //call "_apply" method only after "_debouncedApply" has not been fired during <timeout> ms
         _debouncedApply(e, timeout) {
             if (this.__apply_timeout)
                 clearTimeout(this.__apply_timeout);
@@ -193,7 +195,8 @@
         _keydown(e) {
             if (this.mode === "normal") return;
 
-            if (e.ctrlKey && (
+            //prevent default browser's undo/redo actions
+            if (this.options.preventUndo && e.ctrlKey && (
                 e.keyCode === "Z".charCodeAt(0) ||
                 e.keyCode === "Y".charCodeAt(0) ||
                 e.keyCode === "Z".charCodeAt(0) && e.shiftKey))
@@ -201,7 +204,7 @@
 
             if (this.options.exitKeys) {
                 let exitKeyPressed = this.options.exitKeys.some((keyName) => {
-                    return e.keyCode === $.ui.keyCode[keyName.toUpperCase()];
+                    return e.keyCode === $.ui.keyCode[keyName.toUpperCase()]; //get key codes by names in $.ui.keyCode hash
                 });
 
                 if (exitKeyPressed) {
@@ -210,6 +213,7 @@
                 }
             }
 
+            //prevent 'enter' key from adding line break in non-multi-line mode
             if (!this.options.multiline && e.keyCode === $.ui.keyCode.ENTER)
                 return false;
         },
