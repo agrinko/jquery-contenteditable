@@ -100,6 +100,7 @@ Default value `self` refers to the element itself.
 #### cancel
 
 Type: `String|JQuery|HTMLElement`
+
 Default: `"a"`
 
 Refers to an element inside of the widget, which shouldn't trigger editable mode. E.g. you may want to open link
@@ -110,6 +111,7 @@ Default value `a` refers to all links inside of editable element.
 #### saveDelay
 
 Type: `boolean|number`
+
 Default: `false`
 
 Indicates a delay in milliseconds before calling `save` callback, when no typing occurs during this delay. Similar to
@@ -125,6 +127,7 @@ for no delay in intermediate saving.
 #### multiline
 
 Type: `boolean`
+
 Default: `false`
 
 Indicates whether to allow multiline editing.
@@ -134,6 +137,7 @@ If set to `false`, prevents `Enter` key from adding a line break.
 #### exitKeys
 
 Type: `string[]`
+
 Default: `["escape"]`
 
 Keys that trigger finishing edit-mode. Note that editing also automatically finishes by `blur` event (i.e. when element
@@ -144,6 +148,7 @@ Possible keys: `escape|enter|space|left|right|down|up|end|space|tab`
 #### autoselect
 
 Type: `boolean`
+
 Default: `false`
 
 Indicates whether to automatically select all content when starting editing.
@@ -151,6 +156,7 @@ Indicates whether to automatically select all content when starting editing.
 #### preventUndo
 
 Type: `boolean`
+
 Default: `false`
 
 Indicates whether to prevent default browser's undo/redo actions on `Ctrl+Z`, `Ctrl+Shift+Z` or `Ctrl+Y` shortcuts.
@@ -160,6 +166,7 @@ Might be useful if you have own commands management mechanism and browser's defa
 #### className
 
 Type: `string`
+
 Default: `"ui-editable"`
 
 Class name to be added to editable element permanently.
@@ -167,6 +174,7 @@ Class name to be added to editable element permanently.
 #### editingClass
 
 Type: `string`
+
 Default: `"ui-editable-editing"`
 
 Class name to be added in edit-mode.
@@ -176,6 +184,7 @@ Use it to style content being edited. E.g. you may want to scale content or chan
 #### invalidClass
 
 Type: `string`
+
 Default: `"ui-editable-invalid"`
 
 Class name to be added when validation is not passed.
