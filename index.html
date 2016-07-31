@@ -86,8 +86,8 @@
         });
         $("#alert").editable({
             multiline: true,
-            timeout: 800,
-            apply: function(content) {
+            saveDelay: 800,
+            save: function(content) {
                 alert("Saving actual content: " + content);
             }
         });
@@ -96,9 +96,9 @@
         });
         $("#nonempty").editable({
             multiline: true,
-            timeout: 600,
+            saveDelay: 600,
             autoselect: true,
-            apply: function(content) {
+            save: function(content) {
                 alert("Saving actual content: " + content);
             },
             validate: function(content) {
@@ -108,14 +108,13 @@
         $("#complex").editable({
             content: "a",
             autoselect: true,
-            apply: function(content) {
+            save: function(content) {
                 alert("New link: " + content);
             },
             validate: function(content) {
                 return content !== ""
             }
         });
-        $("#complex").select();
     </script>
 </body>
 </html>

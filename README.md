@@ -12,10 +12,11 @@ It has its own pros and cons, however:
   - :+1: Automatically supports original styling of editable element (as there's no need to replace it with masked input field)
   - :+1: Automatic HTML escaping which "contenteditable" provides out of box (which might be browser-specific, though)
   - :-1: Lower browsers compatibility (read [more](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable))
-- Customizable input validation via callbacks
+- Validation
+- Convenient API for saving edited value
 - No conflicts with jQuery UI Draggable plugin (distinguishes between single click and dragging intent)
 - Source code in 3 samples: *ES 2015*, *ES 5.1* and *ES 5.1 minified*
-- jQuery UI widget-styled. It means **dependency on jQuery UI** widget factory, which is most likely a negative point.
+- jQuery UI widget-styled. It means **dependency on jQuery UI** widget factory, which is most likely a negative feature.
 
 ## Disclaimer
 
@@ -40,11 +41,11 @@ An example of multi-line editable block which saves value (alerts it for demo) e
 ```javascript
 $("#selector").editable({
     multiline: true,
-    timeout: 600, //wait 600ms before calling "apply" callback
+    saveDelay: 600, //wait 600ms before calling "save" callback
     autoselect: true, //select content automatically when editing starts
-    apply: function(e, ui) {
+    save: function(content) {
         //here you can save content to your MVC framework's model or send directly to server...
-        alert("Saving actual content: " + ui.content);
+        alert("Saving actual content: " + content);
     },
     validate: function(content) {
         //here you can validate content using RegExp or any other JS code to return false for invalid input
@@ -56,7 +57,7 @@ $("#selector").editable({
 ## Installation
 
 Download one of the versions from [src](./src) directory (either EcmaScript 6 full, EcmaScript 5 full or EcmaScript 5
-minified). Attach it as a script after jQuery and jQuery UI dependencies (you need at least Widget module).
+minified). Attach it as a script after jQuery and jQuery UI dependencies (you need at least jQuery UI Widget module).
 For example:
 
 ```html
@@ -79,14 +80,15 @@ If you want to contribute or research the repo, clone it and run `npm install`.
 
 Then run `npm run-script build` each time you want to compile and minify ES6 source code.
 
-## Options
+## API
 
 ### Settings
 
 #### content
 
-`Type: String|JQuery|HTMLElement`
-`Default: "self"`
+Type: `String|JQuery|HTMLElement`
+
+Default: `"self"`
 
 Refers to an element which will be actually edited (assignee of "contenteditable" attribute).
 
@@ -97,33 +99,33 @@ Default value `self` refers to the element itself.
 
 #### cancel
 
-`Type: String|JQuery|HTMLElement`
-`Default: "a"`
+Type: `String|JQuery|HTMLElement`
+Default: `"a"`
 
 Refers to an element inside of the widget, which shouldn't trigger editable mode. E.g. you may want to open link
 by click instead editing it. See more in demo.
 
 Default value `a` refers to all links inside of editable element.
 
-#### timeout
+#### saveDelay
 
-`Type: boolean|number`
-`Default: false`
+Type: `boolean|number`
+Default: `false`
 
-Indicates a delay in milliseconds before calling `apply` callback, when no typing occurs during this delay. Similar to
+Indicates a delay in milliseconds before calling `save` callback, when no typing occurs during this delay. Similar to
 delay of `_.debounce()` method in *UnderscoreJS*.
 
 You may want to periodically store intermediate value during edition, e.g. in Local Storage or on server to not lose it
-accidentally. Callback `apply` is used for this purpose. But in order to not call it on each keypress, you may want to
-set a delay. Use `timeout` property to specify this delay.
+accidentally. Callback `save` is used for this purpose. But in order to not call it on each keypress, you may want to
+set a delay. Use `saveDelay` property to specify this delay.
 
-Default value `false` means no intermediate saving and only invoking `apply` after the end of editing. Set it to 0
+Default value `false` means no intermediate saving and only invoking `save` after the end of editing. Set it to 0
 for no delay in intermediate saving.
 
 #### multiline
 
-`Type: boolean`
-`Default: false`
+Type: `boolean`
+Default: `false`
 
 Indicates whether to allow multiline editing.
 
@@ -131,25 +133,25 @@ If set to `false`, prevents `Enter` key from adding a line break.
 
 #### exitKeys
 
-`Type: string[]`
-`Default: ["escape"]`
+Type: `string[]`
+Default: `["escape"]`
 
 Keys that trigger finishing edit-mode. Note that editing also automatically finishes by `blur` event (i.e. when element
 loses focus).
 
-Possible keys: `escape|enter|space|left|right|down|up|ent|space|tab`
+Possible keys: `escape|enter|space|left|right|down|up|end|space|tab`
 
 #### autoselect
 
-`Type: boolean`
-`Default: false`
+Type: `boolean`
+Default: `false`
 
 Indicates whether to automatically select all content when starting editing.
 
 #### preventUndo
 
-`Type: boolean`
-`Default: false`
+Type: `boolean`
+Default: `false`
 
 Indicates whether to prevent default browser's undo/redo actions on `Ctrl+Z`, `Ctrl+Shift+Z` or `Ctrl+Y` shortcuts.
 
@@ -157,15 +159,15 @@ Might be useful if you have own commands management mechanism and browser's defa
 
 #### className
 
-`Type: string`
-`Default: "ui-editable"`
+Type: `string`
+Default: `"ui-editable"`
 
 Class name to be added to editable element permanently.
 
 #### editingClass
 
-`Type: string`
-`Default: "ui-editable-editing"`
+Type: `string`
+Default: `"ui-editable-editing"`
 
 Class name to be added in edit-mode.
 
@@ -173,8 +175,8 @@ Use it to style content being edited. E.g. you may want to scale content or chan
 
 #### invalidClass
 
-`Type: string`
-`Default: "ui-editable-invalid"`
+Type: `string`
+Default: `"ui-editable-invalid"`
 
 Class name to be added when validation is not passed.
 
@@ -202,11 +204,11 @@ Return false e.g. if you want to prevent entering certain letters or the whole i
 
 #### validate(content: string): boolean|void
 
-Invoked each time before `apply` callback is invoked to validate the actual content.
+Invoked each time before `save` callback is invoked to validate the actual content.
 
 Return `false` if content is invalid, and anything else otherwise.
 
-If the value was considered invalid when exiting edit-mode, the last valid value (which was passed to `apply` callback)
+If the value was considered invalid when exiting edit-mode, the last valid value (which was passed to `save` callback)
 is restored.
 
 The basic case is to check if value is not empty:
@@ -217,10 +219,10 @@ validate: function(content) {
 }
 ```
 
-#### apply(content: string)
+#### save(content: string): void
 
 Invoked each time you need to save validated value, e.g. to Local Storage or to server. Frequency of its calls is
-regulated by `timeout` option (read more above).
+regulated by `saveDelay` option (read more above).
 
 It guarantees the value is valid relying on `validate` callback.
 The callback will not be invoked if preceding `validate` callback returns false.
@@ -259,12 +261,12 @@ There are many desirable features to implement, will leave them here for the fut
 
 - Automated tests
 - Test in different browsers
-- Support different event triggering editing mode other than single click
+- Support different events triggering edit-mode, other than single click
 - Support touch events
 - Add 'handle' option to specify which part of element should trigger edit-mode
 - Ensure HTML escape in all browsers to prevent XSS attacks
 - Predefined set of validations (nonempty, maxlength, minlength, etc)
-- Invoke validation after each input (now it's invoked only before 'apply' callback which might be too long)
+- Invoke validation after each input (now it's invoked only before 'save' callback which might be too long)
 - More verbose demo
 - Bugs:
   - using ctrl+c/ctrl+v user is able to paste any HTML from other sites, though the widget is only intended for simple text

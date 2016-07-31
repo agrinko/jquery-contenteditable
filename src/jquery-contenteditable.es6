@@ -14,7 +14,7 @@
         options: {
             content: "self",                    //a selector/jQuery object/HTML element that "contenteditable" attr
                                                 //should be applied to; default "self" refers to the element itself
-            timeout: false,                     //a delay in ms before firing each "apply" callback; false for no intermediate saving
+            saveDelay: false,                   //a delay in ms before firing each "save" callback; false for no intermediate saving
             multiline: false,                   //if false (default) - prevent "enter" key from adding a line break
             exitKeys: ["escape"],               //keys to finish editing (escape, enter, tab, end, and some other)
             className: "ui-editable",           //class name to be added to editable element permanently
@@ -28,7 +28,7 @@
             start: null,                        //editing was started
             end: null,                          //editing was finished
             input: null,                        //fired after each entered letter; return false to prevent default action
-            apply: null,                        //fired when validation is passed and timeout delay has gone
+            save: null,                        //fired when validation is passed and saveDelay delay has gone
             validate: null                      //return false for incorrect value; content value is the second argument
         },
 
@@ -112,7 +112,7 @@
         finish(e) {
             if (this.mode === "normal") return;
 
-            this._apply();
+            this._save();
 
             if (!this.isValid)
                 this.content.text(this.validContent); //reset to last remembered valid content
@@ -185,28 +185,31 @@
                     return false;
             }
 
-            if (this.options.timeout === 0)
-                this._apply();
-            else if (this.options.timeout > 0)
-                this._debouncedApply(this.options.timeout);
+            if (this.options.saveDelay === 0)
+                this._save();
+            else if (this.options.saveDelay > 0)
+                this._debouncedSave(this.options.saveDelay);
         },
 
-        _apply() {
+        _save() {
+            if (this.content.text() == this.validContent) //if content has not changed
+                return;
+
             if (!this.validate()) return;
 
             this.validContent = this.content.text(); //remember new content as valid
 
-            if (this.options.apply)
-                this.options.apply(this.validContent);
+            if (this.options.save)
+                this.options.save(this.validContent);
         },
-        //call "_apply" method only after "_debouncedApply" has not been fired during <timeout> ms
-        _debouncedApply(timeout) {
-            if (this.__apply_timeout)
-                clearTimeout(this.__apply_timeout);
+        //call "_save" method only after "_debouncedSave" has not been fired during <saveDelay> ms
+        _debouncedSave(timeout) {
+            if (this.__save_timeout)
+                clearTimeout(this.__save_timeout);
 
-            this.__apply_timeout = setTimeout(() => {
-                this._apply();
-                this.__apply_timeout = null;
+            this.__save_timeout = setTimeout(() => {
+                this._save();
+                this.__save_timeout = null;
             }, timeout);
         },
 
