@@ -14,7 +14,7 @@
         options: {
             content: "self",                    //a selector/jQuery object/HTML element that "contenteditable" attr
                                                 //should be applied to; default "self" refers to the element itself
-            timeout: false,                     //a delay in ms before firing each "apply" callback; false for no delay
+            timeout: false,                     //a delay in ms before firing each "apply" callback; false for no intermediate saving
             multiline: false,                   //if false (default) - prevent "enter" key from adding a line break
             exitKeys: ["escape"],               //keys to finish editing (escape, enter, tab, end, and some other)
             className: "ui-editable",           //class name to be added to editable element permanently
@@ -22,6 +22,7 @@
             invalidClass: "ui-editable-invalid",//class name to be added when validation is not passed
             autoselect: false,                  //whether to automatically select all content when starting editing
             preventUndo: false,                 //whether to prevent default Ctrl+Z/Ctrl+Shift+Z/Ctrl+Y behaviour
+            cancel: "a",                        //selector/jQuery object/HTML element click on which does not enable editing
 
             //callbacks
             start: null,                        //editing was started
@@ -29,6 +30,18 @@
             input: null,                        //fired on each "keydown" event; return false to prevent default action
             apply: null,                        //fired when validation is passed and timeout delay has gone
             validate: null                      //return false for incorrect value; content value is the second argument
+        },
+
+        keyCode: {
+            down: 40,
+            end: 35,
+            enter: 13,
+            escape: 27,
+            let: 37,
+            right: 39,
+            space: 32,
+            tab: 9,
+            up: 38
         },
 
         _create() {
@@ -61,6 +74,10 @@
         },
 
         _prepare(e) {
+            //prevent editing when clicking on element referred by "cancel" selector
+            if ($(e.target).closest(this.options.cancel).length)
+                return;
+
             if (e.which === 1) //filter left mouse button
                 this.ready = true;
         },
@@ -94,6 +111,8 @@
 
         finish(e) {
             if (this.mode === "normal") return;
+
+            this._apply(e);
 
             if (!this.isValid)
                 this.content.text(this.validContent); //reset to last remembered valid content
@@ -166,10 +185,10 @@
                     return false;
             }
 
-            if (this.options.timeout)
-                this._debouncedApply(e, this.options.timeout);
-            else
+            if (this.options.timeout === 0)
                 this._apply(e);
+            else if (this.options.timeout > 0)
+                this._debouncedApply(e, this.options.timeout);
         },
 
         _apply(e) {
@@ -177,9 +196,10 @@
 
             this.validContent = this.content.text(); //remember new content as valid
 
-            this.options.apply(e, {
-                content: this.validContent
-            });
+            if (this.options.apply)
+                this.options.apply(e, {
+                    content: this.validContent
+                });
         },
         //call "_apply" method only after "_debouncedApply" has not been fired during <timeout> ms
         _debouncedApply(e, timeout) {
@@ -204,7 +224,7 @@
 
             if (this.options.exitKeys) {
                 let exitKeyPressed = this.options.exitKeys.some((keyName) => {
-                    return e.keyCode === $.ui.keyCode[keyName.toUpperCase()]; //get key codes by names in $.ui.keyCode hash
+                    return e.keyCode === this.keyCode[keyName.toLowerCase()]; //get key codes by names in $.ui.keyCode hash
                 });
 
                 if (exitKeyPressed) {
@@ -214,7 +234,7 @@
             }
 
             //prevent 'enter' key from adding line break in non-multi-line mode
-            if (!this.options.multiline && e.keyCode === $.ui.keyCode.ENTER)
+            if (!this.options.multiline && e.keyCode === this.keyCode.enter)
                 return false;
         },
 

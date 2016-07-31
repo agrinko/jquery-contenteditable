@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Demo - jQuery UI Contenteditable</title>
+    <style>
+        :focus {
+            outline: none;
+        }
+        .transition {
+            -moz-transition: all .5s;
+            -webkit-transition: all .5s;
+            transition: all .5s;
+        }
+        .ui-editable-invalid {
+            background: red !important;
+        }
+        h2:empty::after,
+        p:empty::after:not(.ui-editable-invalid) {
+            content: "Empty placeholder set up with simple css";
+            color: lightgray;
+        }
+        #scalable.ui-editable-editing {
+            font-size: 1.2em;
+            color: gray;
+        }
+        #nonempty {
+            min-width: 20px;
+            min-height: 20px;
+            border-radius: 6px;
+            background: lightgreen;
+        }
+        #complex {
+            border-radius: 6px;
+            background: lightblue;
+        }
+    </style>
+</head>
+<body>
+    <h1>
+        jQuery UI Contenteditable Widget
+    </h1>
+    <h2 id="basic">
+        Basic examples. Click on me to edit. Press 'ESC' or 'Tab' or click anywhere else to finish editing.
+    </h2>
+    <p id="paragraph">
+        This is a multi-line paragraph.<br/>
+        It also gets selected automatically.
+    </p>
+    <p id="alert">
+        This sample fires alert each time changed content is supposed to be saved (e.g. sent to server).
+        It is currently set up to fire after 800ms delay of not typing anything.
+    </p>
+    <h2>
+        Validation and styling
+    </h2>
+    <p id="scalable" class="transition">
+        This paragraph gets scaled font-size when editing.<br/>
+        It assigns some css styles to ".ui-editable-editing" class to do so.
+    </p>
+    <p id="nonempty" class="transition">
+        This sample forbids empty values. Try removing its content.<br/>
+        Try also typing any word, waiting until it's saved (alerted), clear it and finish editing. A valid content
+        should be restored.<br/>
+        It highlights empty block with red background and returns valid content back
+        after attempt to save invalid value.
+    </p>
+    <h2 id="complex">
+        And this is a more complex editable field. You can click anywhere on the block, but only the link text below
+        gets edited.<br/>
+        <small><i>Still the link gets opened when clicking on it.</i></small><br/>
+        Read more: <a href="https://github.com/agrinko/jquery-contenteditable" target="_blank">GitHub Repo</a>
+    </h2>
+    <script src="node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="node_modules/jquery-ui/ui/widget.js"></script>
+    <script src="src/jquery-contenteditable.js"></script>
+    <script>
+        $("#basic").editable();
+        $("#paragraph").editable({
+            multiline: true,
+            autoselect: true
+        });
+        $("#alert").editable({
+            multiline: true,
+            timeout: 800,
+            apply: function(e, ui) {
+                alert("Saving actual content: " + ui.content);
+            }
+        });
+        $("#scalable").editable({
+            multiline: true
+        });
+        $("#nonempty").editable({
+            multiline: true,
+            timeout: 600,
+            autoselect: true,
+            apply: function(e, ui) {
+                alert("Saving actual content: " + ui.content);
+            },
+            validate: function(content) {
+                return content !== "";
+            }
+        });
+        $("#complex").editable({
+            content: "a",
+            autoselect: true,
+            apply: function(e, ui) {
+                alert("New link: " + ui.content);
+            },
+            validate: function(content) {
+                return content !== ""
+            }
+        });
+    </script>
+</body>
+</html>

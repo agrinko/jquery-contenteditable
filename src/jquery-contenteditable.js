@@ -16,7 +16,7 @@
         options: {
             content: "self", //a selector/jQuery object/HTML element that "contenteditable" attr
             //should be applied to; default "self" refers to the element itself
-            timeout: false, //a delay in ms before firing each "apply" callback; false for no delay
+            timeout: false, //a delay in ms before firing each "apply" callback; false for no intermediate saving
             multiline: false, //if false (default) - prevent "enter" key from adding a line break
             exitKeys: ["escape"], //keys to finish editing (escape, enter, tab, end, and some other)
             className: "ui-editable", //class name to be added to editable element permanently
@@ -24,6 +24,7 @@
             invalidClass: "ui-editable-invalid", //class name to be added when validation is not passed
             autoselect: false, //whether to automatically select all content when starting editing
             preventUndo: false, //whether to prevent default Ctrl+Z/Ctrl+Shift+Z/Ctrl+Y behaviour
+            cancel: "a", //selector/jQuery object/HTML element click on which does not enable editing
 
             //callbacks
             start: null, //editing was started
@@ -31,6 +32,18 @@
             input: null, //fired on each "keydown" event; return false to prevent default action
             apply: null, //fired when validation is passed and timeout delay has gone
             validate: null //return false for incorrect value; content value is the second argument
+        },
+
+        keyCode: {
+            down: 40,
+            end: 35,
+            enter: 13,
+            escape: 27,
+            let: 37,
+            right: 39,
+            space: 32,
+            tab: 9,
+            up: 38
         },
 
         _create: function _create() {
@@ -55,6 +68,9 @@
             this.content.on("keydown" + this.eventNamespace, this._keydown.bind(this)).on("input" + this.eventNamespace, this._input.bind(this)).on("blur" + this.eventNamespace, this.finish.bind(this));
         },
         _prepare: function _prepare(e) {
+            //prevent editing when clicking on element referred by "cancel" selector
+            if ($(e.target).closest(this.options.cancel).length) return;
+
             if (e.which === 1) //filter left mouse button
                 this.ready = true;
         },
@@ -82,6 +98,8 @@
         },
         finish: function finish(e) {
             if (this.mode === "normal") return;
+
+            this._apply(e);
 
             if (!this.isValid) this.content.text(this.validContent); //reset to last remembered valid content
 
@@ -140,14 +158,14 @@
                 if (result === false) return false;
             }
 
-            if (this.options.timeout) this._debouncedApply(e, this.options.timeout);else this._apply(e);
+            if (this.options.timeout === 0) this._apply(e);else if (this.options.timeout > 0) this._debouncedApply(e, this.options.timeout);
         },
         _apply: function _apply(e) {
             if (!this.validate()) return;
 
             this.validContent = this.content.text(); //remember new content as valid
 
-            this.options.apply(e, {
+            if (this.options.apply) this.options.apply(e, {
                 content: this.validContent
             });
         },
@@ -164,6 +182,8 @@
             }, timeout);
         },
         _keydown: function _keydown(e) {
+            var _this2 = this;
+
             if (this.mode === "normal") return;
 
             //prevent default browser's undo/redo actions
@@ -171,7 +191,7 @@
 
             if (this.options.exitKeys) {
                 var exitKeyPressed = this.options.exitKeys.some(function (keyName) {
-                    return e.keyCode === $.ui.keyCode[keyName.toUpperCase()]; //get key codes by names in $.ui.keyCode hash
+                    return e.keyCode === _this2.keyCode[keyName.toLowerCase()]; //get key codes by names in $.ui.keyCode hash
                 });
 
                 if (exitKeyPressed) {
@@ -181,7 +201,7 @@
             }
 
             //prevent 'enter' key from adding line break in non-multi-line mode
-            if (!this.options.multiline && e.keyCode === $.ui.keyCode.ENTER) return false;
+            if (!this.options.multiline && e.keyCode === this.keyCode.enter) return false;
         },
         _destroy: function _destroy() {
             this.element.removeClass([this.options.className, this.options.editingClass, this.options.invalidClass].join(" "));
