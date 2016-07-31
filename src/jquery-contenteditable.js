@@ -29,7 +29,7 @@
             //callbacks
             start: null, //editing was started
             end: null, //editing was finished
-            input: null, //fired on each "keydown" event; return false to prevent default action
+            input: null, //fired after each entered letter; return false to prevent default action
             apply: null, //fired when validation is passed and timeout delay has gone
             validate: null //return false for incorrect value; content value is the second argument
         },
@@ -39,7 +39,7 @@
             end: 35,
             enter: 13,
             escape: 27,
-            let: 37,
+            left: 37,
             right: 39,
             space: 32,
             tab: 9,
@@ -99,7 +99,7 @@
         finish: function finish(e) {
             if (this.mode === "normal") return;
 
-            this._apply(e);
+            this._apply();
 
             if (!this.isValid) this.content.text(this.validContent); //reset to last remembered valid content
 
@@ -158,26 +158,24 @@
                 if (result === false) return false;
             }
 
-            if (this.options.timeout === 0) this._apply(e);else if (this.options.timeout > 0) this._debouncedApply(e, this.options.timeout);
+            if (this.options.timeout === 0) this._apply();else if (this.options.timeout > 0) this._debouncedApply(this.options.timeout);
         },
-        _apply: function _apply(e) {
+        _apply: function _apply() {
             if (!this.validate()) return;
 
             this.validContent = this.content.text(); //remember new content as valid
 
-            if (this.options.apply) this.options.apply(e, {
-                content: this.validContent
-            });
+            if (this.options.apply) this.options.apply(this.validContent);
         },
 
         //call "_apply" method only after "_debouncedApply" has not been fired during <timeout> ms
-        _debouncedApply: function _debouncedApply(e, timeout) {
+        _debouncedApply: function _debouncedApply(timeout) {
             var _this = this;
 
             if (this.__apply_timeout) clearTimeout(this.__apply_timeout);
 
             this.__apply_timeout = setTimeout(function () {
-                _this._apply(e);
+                _this._apply();
                 _this.__apply_timeout = null;
             }, timeout);
         },

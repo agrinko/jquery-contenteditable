@@ -15,9 +15,13 @@
         .ui-editable-invalid {
             background: red !important;
         }
+        h2:empty,
+        p:empty {
+            min-height: 10px;
+        }
         h2:empty::after,
-        p:empty::after:not(.ui-editable-invalid) {
-            content: "Empty placeholder set up with simple css";
+        p:empty::after {
+            content: "Empty placeholder set up by simple css";
             color: lightgray;
         }
         #scalable.ui-editable-editing {
@@ -71,8 +75,8 @@
         <small><i>Still the link gets opened when clicking on it.</i></small><br/>
         Read more: <a href="https://github.com/agrinko/jquery-contenteditable" target="_blank">GitHub Repo</a>
     </h2>
-    <script src="node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="node_modules/jquery-ui/ui/widget.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
     <script src="src/jquery-contenteditable.js"></script>
     <script>
         $("#basic").editable();
@@ -83,8 +87,8 @@
         $("#alert").editable({
             multiline: true,
             timeout: 800,
-            apply: function(e, ui) {
-                alert("Saving actual content: " + ui.content);
+            apply: function(content) {
+                alert("Saving actual content: " + content);
             }
         });
         $("#scalable").editable({
@@ -94,8 +98,8 @@
             multiline: true,
             timeout: 600,
             autoselect: true,
-            apply: function(e, ui) {
-                alert("Saving actual content: " + ui.content);
+            apply: function(content) {
+                alert("Saving actual content: " + content);
             },
             validate: function(content) {
                 return content !== "";
@@ -104,13 +108,14 @@
         $("#complex").editable({
             content: "a",
             autoselect: true,
-            apply: function(e, ui) {
-                alert("New link: " + ui.content);
+            apply: function(content) {
+                alert("New link: " + content);
             },
             validate: function(content) {
                 return content !== ""
             }
         });
+        $("#complex").select();
     </script>
 </body>
 </html>
