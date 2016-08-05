@@ -56,6 +56,18 @@ $("#selector").editable({
 
 ## Installation
 
+### Using npm
+
+`npm install jquery-contenteditable`
+
+Then in your JS code:
+
+`require("jquery-contenteditable")`
+
+This will require minified file as a dependency.
+
+### Simple download
+
 Download one of the versions from [src](./src) directory (either EcmaScript 6 full, EcmaScript 5 full or EcmaScript 5
 minified). Attach it as a script after jQuery and jQuery UI dependencies (you need at least jQuery UI Widget module).
 For example:
