@@ -96,8 +96,9 @@
         start() {
             if (this.mode === "edit") return;
 
-            if (this.options.start)
-                if (this.options.start.call(this.element) === false) return;
+            //Trigger event + callbacks
+            if (this._trigger("start") === false)
+                return false;
 
             this._mode("edit");
             this.content.focus();
@@ -122,15 +123,17 @@
             if (!e || e.type != "blur")
                 this.content.blur(); //automatically switch focus when finished by pressing "exitKeys"
 
-            if (this.options.end)
-                this.options.end.call(this.element);
+            //Trigger event + callbacks
+            this._trigger("end");
         },
 
         validate() {
             let result = true;
 
-            if (this.options.validate)
-                result = this.options.validate.call(this.element, this.content.text());
+            //Trigger event + callbacks
+            result = this._trigger("validate", null, {
+                content: this.content.text()
+            });
 
             if (result === false)
                 this.element.addClass(this.options.invalidClass);
@@ -176,13 +179,13 @@
         _input(e) {
             if (this.mode != "edit") return;
 
-            if (this.options.input) {
-                let result = this.options.input.call(this.element, e, {
-                    content: this.content.text()
-                });
+            //Trigger event + callbacks
+            var ui = {
+                content: this.content.text()
+            };
 
-                if (result === false)
-                    return false;
+            if (this._trigger("input", e, ui) === false) {
+                return false;
             }
 
             if (this.options.saveDelay === 0)
@@ -199,9 +202,12 @@
 
             this.validContent = this.content.text(); //remember new content as valid
 
-            if (this.options.save)
-                this.options.save(this.validContent);
+            //Trigger event + callbacks
+            this._trigger("save", null, {
+                content: this.validContent
+            });
         },
+
         //call "_save" method only after "_debouncedSave" has not been fired during <saveDelay> ms
         _debouncedSave(timeout) {
             if (this.__save_timeout)

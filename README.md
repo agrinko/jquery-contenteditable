@@ -52,7 +52,7 @@ $("#selector").editable({
         return content !== "";
     }
 });
- ```
+```
 
 ## Installation
 
@@ -211,7 +211,7 @@ Refer to `ui.content` to get the actual content of the element.
 
 Return false e.g. if you want to prevent entering certain letters or the whole input for specific `ui.content` values`.
 
-#### validate(content: string): boolean|void
+#### validate(event: Event, ui: {content: string}): boolean|void
 
 Invoked each time before `save` callback is invoked to validate the actual content.
 
@@ -223,12 +223,12 @@ is restored.
 The basic case is to check if value is not empty:
 
 ```javascript
-validate: function(content) {
-    return content !== "";
+validate: function(e, ui) {
+    return ui.content !== "";
 }
 ```
 
-#### save(content: string): void
+#### save(event: Event, ui: {content: string}): void
 
 Invoked each time you need to save validated value, e.g. to Local Storage or to server. Frequency of its calls is
 regulated by `saveDelay` option (read more above).
@@ -264,6 +264,16 @@ $("#element").editable("select");
 
 This is needed because simple `$("#element").select()` seems not to work on contenteditable elements.
 
+### Events
+
+As typical jQuery UI widget, jQuery Selectable triggers same events as callbacks available, prefixed with "edit-":
+
+- editstart
+- editend
+- editinput
+- editvalidate
+- editsave
+
 ## TODO
 
 There are many desirable features to implement, will leave them here for the future:
@@ -271,6 +281,7 @@ There are many desirable features to implement, will leave them here for the fut
 - Automated tests
 - Test in different browsers
 - Support different events triggering edit-mode, other than single click
+- Start editing by focus event, e.g. when focusing with `Tab` button
 - Support touch events
 - Add 'handle' option to specify which part of element should trigger edit-mode
 - Ensure HTML escape in all browsers to prevent XSS attacks

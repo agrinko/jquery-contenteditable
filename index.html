@@ -87,8 +87,8 @@
         $("#alert").editable({
             multiline: true,
             saveDelay: 800,
-            save: function(content) {
-                alert("Saving actual content: " + content);
+            save: function(e, ui) {
+                alert("Saving actual content: " + ui.content);
             }
         });
         $("#scalable").editable({
@@ -98,21 +98,21 @@
             multiline: true,
             saveDelay: 600,
             autoselect: true,
-            save: function(content) {
-                alert("Saving actual content: " + content);
+            save: function(e, ui) {
+                alert("Saving actual content: " + ui.content);
             },
-            validate: function(content) {
-                return content !== "";
+            validate: function(e, ui) {
+                return ui.content !== "";
             }
         });
         $("#complex").editable({
-            content: "a",
+            content: "a", //only link <a> is editable
             autoselect: true,
-            save: function(content) {
-                alert("New link: " + content);
+            save: function(e, ui) {
+                alert("New link: " + ui.content);
             },
-            validate: function(content) {
-                return content !== ""
+            validate: function(e, ui) {
+                return ui.content !== ""
             }
         });
     </script>
