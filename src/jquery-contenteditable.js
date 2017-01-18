@@ -83,6 +83,9 @@
             this.start();
             this.ready = false;
         },
+        getText: function getText() {
+            return this.content[0].innerText || this.content[0].textContent; // for browsers compatibility
+        },
         start: function start() {
             if (this.mode === "edit") return;
 
@@ -93,7 +96,7 @@
             this.content.focus();
 
             this.isValid = true;
-            this.validContent = this.content.text(); //remember current content as valid
+            this.validContent = this.getText(); //remember current content as valid
 
             if (this.options.autoselect) this.select();
         },
@@ -112,11 +115,9 @@
             this._trigger("end");
         },
         validate: function validate() {
-            var result = true;
-
             //Trigger event + callbacks
-            result = this._trigger("validate", null, {
-                content: this.content.text()
+            var result = this._trigger("validate", null, {
+                content: this.getText()
             });
 
             if (result === false) this.element.addClass(this.options.invalidClass);else this.element.removeClass(this.options.invalidClass);
@@ -157,7 +158,7 @@
 
             //Trigger event + callbacks
             var ui = {
-                content: this.content.text()
+                content: this.getText()
             };
 
             if (this._trigger("input", e, ui) === false) {
@@ -167,12 +168,14 @@
             if (this.options.saveDelay === 0) this._save();else if (this.options.saveDelay > 0) this._debouncedSave(this.options.saveDelay);
         },
         _save: function _save() {
-            if (this.content.text() == this.validContent) //if content has not changed
+            var text = this.getText();
+
+            if (text == this.validContent) //if content has not changed
                 return;
 
             if (!this.validate()) return;
 
-            this.validContent = this.content.text(); //remember new content as valid
+            this.validContent = text; //remember new content as valid
 
             //Trigger event + callbacks
             this._trigger("save", null, {

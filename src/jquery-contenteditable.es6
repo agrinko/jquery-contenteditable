@@ -93,6 +93,10 @@
             this.ready = false;
         },
 
+        getText() {
+            return this.content[0].innerText || this.content[0].textContent; // for browsers compatibility
+        },
+
         start() {
             if (this.mode === "edit") return;
 
@@ -104,7 +108,7 @@
             this.content.focus();
 
             this.isValid = true;
-            this.validContent = this.content.text(); //remember current content as valid
+            this.validContent = this.getText(); //remember current content as valid
 
             if (this.options.autoselect)
                 this.select();
@@ -128,11 +132,9 @@
         },
 
         validate() {
-            let result = true;
-
             //Trigger event + callbacks
-            result = this._trigger("validate", null, {
-                content: this.content.text()
+            let result = this._trigger("validate", null, {
+                content: this.getText()
             });
 
             if (result === false)
@@ -180,8 +182,8 @@
             if (this.mode != "edit") return;
 
             //Trigger event + callbacks
-            var ui = {
-                content: this.content.text()
+            let ui = {
+                content: this.getText()
             };
 
             if (this._trigger("input", e, ui) === false) {
@@ -195,12 +197,14 @@
         },
 
         _save() {
-            if (this.content.text() == this.validContent) //if content has not changed
+            let text = this.getText();
+
+            if (text == this.validContent) //if content has not changed
                 return;
 
             if (!this.validate()) return;
 
-            this.validContent = this.content.text(); //remember new content as valid
+            this.validContent = text; //remember new content as valid
 
             //Trigger event + callbacks
             this._trigger("save", null, {
